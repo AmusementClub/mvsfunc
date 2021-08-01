@@ -69,11 +69,11 @@ VSMaxPlaneNum = 3
 try:
     vs_YCOCG = vs.YCOCG
 except AttributeError:
-    vs_YCOCG = 0
+    vs_YCOCG = -1
 try:
     vs_COMPAT = vs.COMPAT
 except AttributeError:
-    vs_COMPAT = 0
+    vs_COMPAT = -1
 
 
 ################################################################################################################################
@@ -692,7 +692,7 @@ kernel=None, taps=None, a1=None, a2=None, cplace=None):
         elif matrix == "2020cl":
             clip = core.fmtc.matrix2020cl(clip, full=fulld)
         else:
-            clip = core.fmtc.matrix(clip, mat=matrix, fulls=fulls, fulld=fulld, col_fam=vs_YCOCG if matrix == "YCgCo" else vs.YUV)
+            clip = core.fmtc.matrix(clip, mat=matrix, fulls=fulls, fulld=fulld, col_fam=vs.YUV)
         # Change chroma sub-sampling if needed
         if dHSubS != sHSubS or dVSubS != sVSubS:
             clip = core.fmtc.resample(clip, kernel=kernel, taps=taps, a1=a1, a2=a2, css=css, planes=[2,3,3], fulls=fulld, fulld=fulld, cplace=cplace)
