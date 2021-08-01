@@ -66,6 +66,14 @@ VSMaxPlaneNum = 3
 
 
 
+try:
+    vs_YCOCG = vs.YCOCG
+except AttributeError:
+    vs_YCOCG = 0
+try:
+    vs_COMPAT = vs.COMPAT
+except AttributeError:
+    vs_COMPAT = 0
 
 
 ################################################################################################################################
@@ -86,7 +94,7 @@ VSMaxPlaneNum = 3
 ################################################################################################################################
 ## Basic parameters
 ##     input {clip}: clip to be converted
-##         can be of YUV/RGB/Gray color family, can be of 8-16 bit integer or 16/32 bit float
+##         can be of YUV/RGB/Gray/YCoCg color family, can be of 8-16 bit integer or 16/32 bit float
 ##     depth {int}: output bit depth, can be 1-16 bit integer or 16/32 bit float
 ##         note that 1-7 bit content is still stored as 8 bit integer format
 ##         default is the same as that of the input clip
@@ -137,7 +145,8 @@ dither=None, useZ=None, prefer_props=None, ampo=None, ampn=None, dyn=None, stati
     sIsRGB = sColorFamily == vs.RGB
     sIsYUV = sColorFamily == vs.YUV
     sIsGRAY = sColorFamily == vs.GRAY
-    if sColorFamily == vs.COMPAT:
+    sIsYCOCG = sColorFamily == vs_YCOCG
+    if sColorFamily == vs_COMPAT:
         raise ValueError(funcName + ': color family *COMPAT* is not supported!')
     
     sbitPS = sFormat.bits_per_sample
@@ -306,8 +315,8 @@ dither=None, useZ=None, prefer_props=None, ampo=None, ampn=None, dyn=None, stati
 ################################################################################################################################
 ## Basic parameters
 ##     input {clip}: clip to be converted
-##         can be of YUV/RGB/Gray color family, can be of 8-16 bit integer or 16/32 bit float
-##     matrix {int|str}: color matrix of input clip, only makes sense for YUV input
+##         can be of YUV/RGB/Gray/YCoCg color family, can be of 8-16 bit integer or 16/32 bit float
+##     matrix {int|str}: color matrix of input clip, only makes sense for YUV/YCoCg input
 ##         decides the conversion coefficients from YUV to RGB
 ##         check GetMatrix() for available values
 ##         default: None, guessed according to the color family and size of input clip
@@ -352,7 +361,8 @@ compat=None):
     sIsRGB = sColorFamily == vs.RGB
     sIsYUV = sColorFamily == vs.YUV
     sIsGRAY = sColorFamily == vs.GRAY
-    if sColorFamily == vs.COMPAT:
+    sIsYCOCG = sColorFamily == vs_YCOCG
+    if sColorFamily == vs_COMPAT:
         raise ValueError(funcName + ': color family *COMPAT* is not supported!')
     
     sbitPS = sFormat.bits_per_sample
@@ -364,7 +374,7 @@ compat=None):
     if full is None:
         # If not set, assume limited range for YUV and Gray input
         # Assume full range for YCgCo and OPP input
-        if (sIsGRAY or sIsYUV) and (matrix == "RGB" or matrix == "YCgCo" or matrix == "OPP"):
+        if (sIsGRAY or sIsYUV or sIsYCOCG) and (matrix == "RGB" or matrix == "YCgCo" or matrix == "OPP"):
             fulls = True
         else:
             fulls = False if sIsYUV or sIsGRAY else True
@@ -466,7 +476,7 @@ compat=None):
         clip = Depth(clip, dbitPS, dSType, fulld, fulld, dither, useZ, prefer_props, ampo, ampn, dyn, staticnoise)
     
     if compat:
-        clip = core.resize.Bicubic(clip, format=vs.COMPATBGR32)
+        raise ValueError(funcName + ': color family *COMPAT* is not supported!')
     
     # Output
     return clip
@@ -476,7 +486,7 @@ compat=None):
 ################################################################################################################################
 ## Main function: ToYUV()
 ################################################################################################################################
-## Convert any color space to YUV with/without sub-sampling.
+## Convert any color space to YUV/YCoCg with/without sub-sampling.
 ## If input is RGB, it's assumed to be of full range.
 ##     Thus, limited range RGB clip should first be manually converted to full range before call this function.
 ## If matrix is 10, "2020cl" or "bt2020c", the input should be linear RGB.
@@ -486,7 +496,7 @@ compat=None):
 ################################################################################################################################
 ## Basic parameters
 ##     input {clip}: clip to be converted
-##         can be of YUV/RGB/Gray color family, can be of 8-16 bit integer or 16/32 bit float
+##         can be of YUV/RGB/Gray/YCoCg color family, can be of 8-16 bit integer or 16/32 bit float
 ##     matrix {int|str}: color matrix of output clip
 ##         decides the conversion coefficients from RGB to YUV
 ##         check GetMatrix() for available values
@@ -501,13 +511,13 @@ compat=None):
 ##         - "420" | "4:2:0" | "22"
 ##         - "411" | "4:1:1" | "41"
 ##         - "410" | "4:1:0" | "42"
-##         default: 4:4:4 for RGB/Gray input, same as input is for YUV input
+##         default: 4:4:4 for RGB/Gray input, same as input is for YUV/YCoCg input
 ##     depth {int}: output bit depth, can be 1-16 bit integer or 16/32 bit float
 ##         note that 1-7 bit content is still stored as 8 bit integer format
 ##         default is the same as that of the input clip
 ##     sample {int}: output sample type, can be 0(vs.INTEGER) or 1(vs.FLOAT)
 ##         default is the same as that of the input clip
-##     full {bool}: define if input/output Gray/YUV clip is of full range
+##     full {bool}: define if input/output Gray/YUV/YCoCg clip is of full range
 ##         default: guessed according to the color family of input clip and "matrix"
 ################################################################################################################################
 ## Parameters of depth conversion
@@ -540,7 +550,8 @@ kernel=None, taps=None, a1=None, a2=None, cplace=None):
     sIsRGB = sColorFamily == vs.RGB
     sIsYUV = sColorFamily == vs.YUV
     sIsGRAY = sColorFamily == vs.GRAY
-    if sColorFamily == vs.COMPAT:
+    sIsYCOCG = sColorFamily == vs_YCOCG
+    if sColorFamily == vs_COMPAT:
         raise ValueError(funcName + ': color family *COMPAT* is not supported!')
     
     sbitPS = sFormat.bits_per_sample
@@ -555,7 +566,7 @@ kernel=None, taps=None, a1=None, a2=None, cplace=None):
     elif full is None:
         # If not set, assume limited range for YUV and Gray input
         # Assume full range for YCgCo and OPP input
-        if (sIsGRAY or sIsYUV) and (matrix == "RGB" or matrix == "YCgCo" or matrix == "OPP"):
+        if (sIsGRAY or sIsYUV or sIsYCOCG) and (matrix == "RGB" or matrix == "YCgCo" or matrix == "OPP"):
             fulls = True
         else:
             fulls = False if sIsYUV or sIsGRAY else True
@@ -597,7 +608,7 @@ kernel=None, taps=None, a1=None, a2=None, cplace=None):
         if matrix == "RGB" or matrix == "YCgCo" or matrix == "OPP":
             fulld = True
         else:
-            fulld = False
+            fulld = True if sIsYCOCG else False
     elif not isinstance(full, int):
         raise TypeError(funcName + ': \"full\" must be a bool!')
     else:
@@ -653,7 +664,7 @@ kernel=None, taps=None, a1=None, a2=None, cplace=None):
         raise TypeError(funcName + ': \"kernel\" must be a str!')
     
     # Conversion
-    if sIsYUV:
+    if sIsYUV or sIsYCOCG:
         # Skip matrix conversion for YUV/YCoCg input
         # Change chroma sub-sampling if needed
         if dHSubS != sHSubS or dVSubS != sVSubS:
@@ -681,7 +692,7 @@ kernel=None, taps=None, a1=None, a2=None, cplace=None):
         elif matrix == "2020cl":
             clip = core.fmtc.matrix2020cl(clip, full=fulld)
         else:
-            clip = core.fmtc.matrix(clip, mat=matrix, fulls=fulls, fulld=fulld, col_fam=vs.YUV)
+            clip = core.fmtc.matrix(clip, mat=matrix, fulls=fulls, fulld=fulld, col_fam=vs_YCOCG if matrix == "YCgCo" else vs.YUV)
         # Change chroma sub-sampling if needed
         if dHSubS != sHSubS or dVSubS != sVSubS:
             clip = core.fmtc.resample(clip, kernel=kernel, taps=taps, a1=a1, a2=a2, css=css, planes=[2,3,3], fulls=fulld, fulld=fulld, cplace=cplace)
@@ -808,7 +819,8 @@ block_size2=None, block_step2=None, group_size2=None, bm_range2=None, bm_step2=N
     sIsRGB = sColorFamily == vs.RGB
     sIsYUV = sColorFamily == vs.YUV
     sIsGRAY = sColorFamily == vs.GRAY
-    if sColorFamily == vs.COMPAT:
+    sIsYCOCG = sColorFamily == vs_YCOCG
+    if sColorFamily == vs_COMPAT:
         raise ValueError(funcName + ': color family *COMPAT* is not supported!')
     
     sbitPS = sFormat.bits_per_sample
@@ -820,7 +832,7 @@ block_size2=None, block_step2=None, group_size2=None, bm_range2=None, bm_step2=N
     if full is None:
         # If not set, assume limited range for YUV and Gray input
         # Assume full range for YCgCo and OPP input
-        if (sIsGRAY or sIsYUV) and (matrix == "RGB" or matrix == "YCgCo" or matrix == "OPP"):
+        if (sIsGRAY or sIsYUV or sIsYCOCG) and (matrix == "RGB" or matrix == "YCgCo" or matrix == "OPP"):
             fulls = True
         else:
             fulls = False if sIsYUV or sIsGRAY else True
@@ -1475,13 +1487,14 @@ def ShowAverage(clip, alignment=None):
     
     sColorFamily = sFormat.color_family
     sIsYUV = sColorFamily == vs.YUV
+    sIsYCOCG = sColorFamily == vs_YCOCG
     
     sSType = sFormat.sample_type
     sbitPS = sFormat.bits_per_sample
     sNumPlanes = sFormat.num_planes
     
     valueRange = (1 << sbitPS) - 1 if sSType == vs.INTEGER else 1
-    offset = [0, -0.5, -0.5] if sSType == vs.FLOAT and sIsYUV else [0, 0, 0]
+    offset = [0, -0.5, -0.5] if sSType == vs.FLOAT and (sIsYUV or sIsYCOCG) else [0, 0, 0]
     
     # Process and output
     def _ShowAverageFrame(n, f):
@@ -1795,6 +1808,7 @@ def LimitFilter(flt, src, ref=None, thr=None, elast=None, brighten_thr=None, thr
     
     sColorFamily = sFormat.color_family
     sIsYUV = sColorFamily == vs.YUV
+    sIsYCOCG = sColorFamily == vs_YCOCG
     
     sSType = sFormat.sample_type
     sbitPS = sFormat.bits_per_sample
@@ -1861,13 +1875,13 @@ def LimitFilter(flt, src, ref=None, thr=None, elast=None, brighten_thr=None, thr
     
     # Process
     if thr <= 0 and brighten_thr <= 0:
-        if sIsYUV:
+        if sIsYUV or sIsYCOCG:
             if thrc <= 0:
                 return src
         else:
             return src
     if thr >= 255 and brighten_thr >= 255:
-        if sIsYUV:
+        if sIsYUV or sIsYCOCG:
             if thrc >= 255:
                 return flt
         else:
@@ -1882,7 +1896,7 @@ def LimitFilter(flt, src, ref=None, thr=None, elast=None, brighten_thr=None, thr
         expr = []
         for i in range(sNumPlanes):
             if process[i]:
-                if i > 0 and sIsYUV:
+                if i > 0 and (sIsYUV or sIsYCOCG):
                     expr.append(limitExprC)
                 else:
                     expr.append(limitExprY)
@@ -1895,7 +1909,7 @@ def LimitFilter(flt, src, ref=None, thr=None, elast=None, brighten_thr=None, thr
             clip = core.std.Expr([flt, src, ref], expr)
     else: # implementation with std.MakeDiff, std.Lut and std.MergeDiff
         diff = core.std.MakeDiff(flt, src, planes=planes)
-        if sIsYUV:
+        if sIsYUV or sIsYCOCG:
             if process[0]:
                 diff = _limit_diff_lut(diff, thr, elast, brighten_thr, [0])
             if process[1] or process[2]:
@@ -2005,9 +2019,10 @@ def CheckMatrix(clip, matrices=None, full=None, lower=None, upper=None):
     sIsRGB = sColorFamily == vs.RGB
     sIsYUV = sColorFamily == vs.YUV
     sIsGRAY = sColorFamily == vs.GRAY
-    if sColorFamily == vs.COMPAT:
+    sIsYCOCG = sColorFamily == vs_YCOCG
+    if sColorFamily == vs_COMPAT:
         raise ValueError(funcName + ': color family *COMPAT* is not supported!')
-    if not sIsYUV:
+    if not (sIsYUV or sIsYCOCG):
         raise ValueError(funcName + ': only YUV or YCoCg color family is allowed!')
     
     # Parameters
@@ -2017,7 +2032,7 @@ def CheckMatrix(clip, matrices=None, full=None, lower=None, upper=None):
         raise TypeError(funcName + ': \'matrices\' must be a (list of) str!')
     
     if full is None:
-        full = False
+        full = sIsYCOCG
     elif not isinstance(full, int):
         raise TypeError(funcName + ': \'full\' must be a bool!')
     
@@ -2438,7 +2453,8 @@ def GetMatrix(clip, matrix=None, dIsRGB=None, id=False):
     sIsRGB = sColorFamily == vs.RGB
     sIsYUV = sColorFamily == vs.YUV
     sIsGRAY = sColorFamily == vs.GRAY
-    if sColorFamily == vs.COMPAT:
+    sIsYCOCG = sColorFamily == vs_YCOCG
+    if sColorFamily == vs_COMPAT:
         raise ValueError(funcName + ': color family *COMPAT* is not supported!')
     
     # Get properties of output clip
@@ -2503,7 +2519,7 @@ def GetMatrix(clip, matrix=None, dIsRGB=None, id=False):
     if matrix == 2 or matrix == "Unspecified":
         if dIsRGB and sIsRGB:
             matrix = 0 if id else "RGB"
-        elif False #sIsYCOCG:
+        elif sIsYCOCG:
             matrix = 8 if id else "YCgCo"
         else:
             matrix = (6 if id else "601") if SD else (9 if id else "2020") if UHD else (1 if id else "709")
@@ -2680,7 +2696,8 @@ def GrayScale(clip, matrix=None):
     sIsRGB = sColorFamily == vs.RGB
     sIsYUV = sColorFamily == vs.YUV
     sIsGRAY = sColorFamily == vs.GRAY
-    if sColorFamily == vs.COMPAT:
+    sIsYCOCG = sColorFamily == vs_YCOCG
+    if sColorFamily == vs_COMPAT:
         raise ValueError(funcName + ': color family *COMPAT* is not supported!')
     
     # Process
@@ -2731,7 +2748,7 @@ dither=None, kernel=None, a1=None, a2=None, prefer_props=None):
     
     # Get properties of output clip
     if compat:
-        dFormat = vs.COMPATBGR32
+        raise ValueError(funcName + ': color family *COMPAT* is not supported!')
     else:
         if depth is None:
             depth = 8
@@ -2849,7 +2866,8 @@ clamp=None, dbitPS=None, mode=None, funcName='_quantization_conversion'):
     sIsRGB = sColorFamily == vs.RGB
     sIsYUV = sColorFamily == vs.YUV
     sIsGRAY = sColorFamily == vs.GRAY
-    if sColorFamily == vs.COMPAT:
+    sIsYCOCG = sColorFamily == vs_YCOCG
+    if sColorFamily == vs_COMPAT:
         raise ValueError(funcName + ': color family *COMPAT* is not supported!')
     
     sbitPS = sFormat.bits_per_sample
@@ -2960,7 +2978,7 @@ clamp=None, dbitPS=None, mode=None, funcName='_quantization_conversion'):
     Yexpr = gen_expr(False, mode)
     Cexpr = gen_expr(True, mode)
     
-    if sIsYUV:
+    if sIsYUV or sIsYCOCG:
         expr = [Yexpr, Cexpr]
     elif sIsGRAY and chroma:
         expr = Cexpr
