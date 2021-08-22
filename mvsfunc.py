@@ -51,6 +51,7 @@
 
 
 import vapoursynth as vs
+from vapoursynth import core
 import functools
 import math
 
@@ -127,8 +128,7 @@ except AttributeError:
 ################################################################################################################################
 def Depth(input, depth=None, sample=None, fulls=None, fulld=None, \
 dither=None, useZ=None, prefer_props=None, ampo=None, ampn=None, dyn=None, staticnoise=None):
-    # Set VS core and function name
-    core = vs.core
+    # Set function name
     funcName = 'Depth'
     clip = input
     
@@ -342,8 +342,7 @@ def ToRGB(input, matrix=None, depth=None, sample=None, full=None, \
 dither=None, useZ=None, prefer_props=None, ampo=None, ampn=None, dyn=None, staticnoise=None, \
 kernel=None, taps=None, a1=None, a2=None, cplace=None, \
 compat=None):
-    # Set VS core and function name
-    core = vs.core
+    # Set function name
     funcName = 'ToRGB'
     clip = input
     
@@ -531,8 +530,7 @@ compat=None):
 def ToYUV(input, matrix=None, css=None, depth=None, sample=None, full=None, \
 dither=None, useZ=None, prefer_props=None, ampo=None, ampn=None, dyn=None, staticnoise=None, \
 kernel=None, taps=None, a1=None, a2=None, cplace=None):
-    # Set VS core and function name
-    core = vs.core
+    # Set function name
     funcName = 'ToYUV'
     clip = input
     
@@ -800,8 +798,7 @@ cu_kernel=None, cu_taps=None, cu_a1=None, cu_a2=None, cu_cplace=None, \
 cd_kernel=None, cd_taps=None, cd_a1=None, cd_a2=None, cd_cplace=None, \
 block_size1=None, block_step1=None, group_size1=None, bm_range1=None, bm_step1=None, ps_num1=None, ps_range1=None, ps_step1=None, th_mse1=None, hard_thr=None, \
 block_size2=None, block_step2=None, group_size2=None, bm_range2=None, bm_step2=None, ps_num2=None, ps_range2=None, ps_step2=None, th_mse2=None):
-    # Set VS core and function name
-    core = vs.core
+    # Set function name
     funcName = 'BM3D'
     clip = input
     
@@ -1118,8 +1115,7 @@ block_size2=None, block_step2=None, group_size2=None, bm_range2=None, bm_step2=N
 ##         default: 6
 ################################################################################################################################
 def VFRSplice(clips, tcfile=None, v2=None, precision=None):
-    # Set VS core and function name
-    core = vs.core
+    # Set function name
     funcName = 'VFRSplice'
     
     # Arguments
@@ -1233,8 +1229,7 @@ def VFRSplice(clips, tcfile=None, v2=None, precision=None):
 ##         default: True
 ################################################################################################################################
 def PlaneStatistics(clip, plane=None, mean=True, mad=True, var=True, std=True, rms=True):
-    # Set VS core and function name
-    core = vs.core
+    # Set function name
     funcName = 'PlaneStatistics'
     
     if not isinstance(clip, vs.VideoNode):
@@ -1362,8 +1357,7 @@ def PlaneStatistics(clip, plane=None, mean=True, mad=True, var=True, std=True, r
 ##         default: True
 ################################################################################################################################
 def PlaneCompare(clip1, clip2, plane=None, mae=True, rmse=True, psnr=True, cov=True, corr=True):
-    # Set VS core and function name
-    core = vs.core
+    # Set function name
     funcName = 'PlaneCompare'
     
     if not isinstance(clip1, vs.VideoNode):
@@ -1490,8 +1484,7 @@ def PlaneCompare(clip1, clip2, plane=None, mae=True, rmse=True, psnr=True, cov=T
 ##         default: 7
 ################################################################################################################################
 def ShowAverage(clip, alignment=None):
-    # Set VS core and function name
-    core = vs.core
+    # Set function name
     funcName = 'ShowAverage'
     
     if not isinstance(clip, vs.VideoNode):
@@ -1549,8 +1542,7 @@ def ShowAverage(clip, alignment=None):
 ##         default: None (use "src")
 ################################################################################################################################
 def FilterIf(src, flt, prop_name, props=None):
-    # Set VS core and function name
-    core = vs.core
+    # Set function name
     funcName = 'FilterIf'
     
     if not isinstance(src, vs.VideoNode):
@@ -1797,8 +1789,7 @@ def MaxFilter(src, flt1, flt2, planes=None):
 ##         default: True
 ################################################################################################################################
 def LimitFilter(flt, src, ref=None, thr=None, elast=None, brighten_thr=None, thrc=None, force_expr=None, planes=None):
-    # Set VS core and function name
-    core = vs.core
+    # Set function name
     funcName = 'LimitFilter'
     
     if not isinstance(flt, vs.VideoNode):
@@ -1959,8 +1950,7 @@ def LimitFilter(flt, src, ref=None, thr=None, elast=None, brighten_thr=None, thr
 ##         default: 0
 ################################################################################################################################
 def PointPower(clip, vpow=None, hpow=None):
-    # Set VS core and function name
-    core = vs.core
+    # Set function name
     funcName = 'PointPower'
     
     if not isinstance(clip, vs.VideoNode):
@@ -2020,8 +2010,7 @@ def PointPower(clip, vpow=None, hpow=None):
 ##         default: 1.02
 ################################################################################################################################
 def CheckMatrix(clip, matrices=None, full=None, lower=None, upper=None):
-    # Set VS core and function name
-    core = vs.core
+    # Set function name
     funcName = 'CheckMatrix'
     
     if not isinstance(clip, vs.VideoNode):
@@ -2182,8 +2171,7 @@ def postfix2infix(expr):
 ##         - {int}: set to this value
 ################################################################################################################################
 def SetColorSpace(clip, ChromaLocation=None, ColorRange=None, Primaries=None, Matrix=None, Transfer=None):
-    # Set VS core and function name
-    core = vs.core
+    # Set function name
     funcName = 'SetColorSpace'
     
     if not isinstance(clip, vs.VideoNode):
@@ -2259,8 +2247,7 @@ def SetColorSpace(clip, ChromaLocation=None, ColorRange=None, Primaries=None, Ma
 ## Also it may be useful to be applied before upscaling or anti-aliasing scripts using EEDI3/nnedi3, etc.(whose field order should be specified explicitly)
 ################################################################################################################################
 def AssumeFrame(clip):
-    # Set VS core and function name
-    core = vs.core
+    # Set function name
     funcName = 'AssumeFrame'
     
     if not isinstance(clip, vs.VideoNode):
@@ -2282,8 +2269,7 @@ def AssumeFrame(clip):
 ## This frame property will override the field order set in those de-interlace filters.
 ################################################################################################################################
 def AssumeTFF(clip):
-    # Set VS core and function name
-    core = vs.core
+    # Set function name
     funcName = 'AssumeTFF'
     
     if not isinstance(clip, vs.VideoNode):
@@ -2305,8 +2291,7 @@ def AssumeTFF(clip):
 ## This frame property will override the field order set in those de-interlace filters.
 ################################################################################################################################
 def AssumeBFF(clip):
-    # Set VS core and function name
-    core = vs.core
+    # Set function name
     funcName = 'AssumeBFF'
     
     if not isinstance(clip, vs.VideoNode):
@@ -2332,8 +2317,7 @@ def AssumeBFF(clip):
 ##         - False: bottom-field-based
 ################################################################################################################################
 def AssumeField(clip, top):
-    # Set VS core and function name
-    core = vs.core
+    # Set function name
     funcName = 'AssumeField'
     
     if not isinstance(clip, vs.VideoNode):
@@ -2364,8 +2348,7 @@ def AssumeField(clip, top):
 ##         default: True
 ################################################################################################################################
 def AssumeCombed(clip, combed=True):
-    # Set VS core and function name
-    core = vs.core
+    # Set function name
     funcName = 'AssumeCombed'
     
     if not isinstance(clip, vs.VideoNode):
@@ -2454,8 +2437,7 @@ def CheckVersion(version, less=False, equal=True, greater=True):
 ##         default: False
 ################################################################################################################################
 def GetMatrix(clip, matrix=None, dIsRGB=None, id=False):
-    # Set VS core and function name
-    core = vs.core
+    # Set function name
     funcName = 'GetMatrix'
     
     if not isinstance(clip, vs.VideoNode):
@@ -2551,8 +2533,7 @@ def GetMatrix(clip, matrix=None, dIsRGB=None, id=False):
 ## core.resize is preferred now.
 ################################################################################################################################
 def zDepth(clip, sample=None, depth=None, range=None, range_in=None, dither_type=None, cpu_type=None, prefer_props=None):
-    # Set VS core and function name
-    core = vs.core
+    # Set function name
     funcName = 'zDepth'
     
     if not isinstance(clip, vs.VideoNode):
@@ -2606,8 +2587,7 @@ def zDepth(clip, sample=None, depth=None, range=None, range_in=None, dither_type
 ##         default: 'PlaneAverage'
 ################################################################################################################################
 def PlaneAverage(clip, plane=None, prop=None):
-    # Set VS core and function name
-    core = vs.core
+    # Set function name
     funcName = 'PlaneAverage'
     
     if not isinstance(clip, vs.VideoNode):
@@ -2662,8 +2642,7 @@ def PlaneAverage(clip, plane=None, prop=None):
 ##         default: 0
 ################################################################################################################################
 def GetPlane(clip, plane=None):
-    # Set VS core and function name
-    core = vs.core
+    # Set function name
     funcName = 'GetPlane'
     
     if not isinstance(clip, vs.VideoNode):
@@ -2697,8 +2676,7 @@ def GetPlane(clip, plane=None):
 ##     matrix {int|str}: for RGB input only, same as the one in ToYUV()
 ################################################################################################################################
 def GrayScale(clip, matrix=None):
-    # Set VS core and function name
-    core = vs.core
+    # Set function name
     funcName = 'GrayScale'
     
     if not isinstance(clip, vs.VideoNode):
@@ -2747,8 +2725,7 @@ def GrayScale(clip, matrix=None):
 ################################################################################################################################
 def Preview(clips, plane=None, compat=None, matrix=None, full=None, depth=None,\
 dither=None, kernel=None, a1=None, a2=None, prefer_props=None):
-    # Set VS core and function name
-    core = vs.core
+    # Set function name
     funcName = 'Preview'
     
     if isinstance(clips, vs.VideoNode):
@@ -2868,8 +2845,7 @@ def _quantization_parameters(sample=None, depth=None, full=None, chroma=None, fu
 ################################################################################################################################
 def _quantization_conversion(clip, depths=None, depthd=None, sample=None, fulls=None, fulld=None, chroma=None,\
 clamp=None, dbitPS=None, mode=None, funcName='_quantization_conversion'):
-    # Set VS core and function name
-    core = vs.core
+    # Set function name
     
     if not isinstance(clip, vs.VideoNode):
         raise TypeError(funcName + ': \"clip\" must be a clip!')
@@ -3037,8 +3013,6 @@ def _check_arg_prop(arg, default=None, defaultTrue=None, argName='arg', funcName
 ## Internal used function for Min(), Max() and Avg()
 ################################################################################################################################
 def _operator2(clip1, clip2, mode, neutral, funcName):
-    # Set VS core
-    core = vs.core
     
     if not isinstance(clip1, vs.VideoNode):
         raise TypeError(funcName + ': \"clip1\" must be a clip!')
@@ -3109,8 +3083,7 @@ def _operator2(clip1, clip2, mode, neutral, funcName):
 ## Internal used function for MinFilter() and MaxFilter()
 ################################################################################################################################
 def _min_max_filter(src, flt1, flt2, planes, funcName):
-    # Set VS core and function name
-    core = vs.core
+    # Set function name
     
     if not isinstance(src, vs.VideoNode):
         raise TypeError(funcName + ': \"src\" must be a clip!')
@@ -3225,8 +3198,7 @@ def _limit_filter_expr(defref, thr, elast, largen_thr, value_range):
 ## Internal used functions for LimitFilter()
 ################################################################################################################################
 def _limit_diff_lut(diff, thr, elast, largen_thr, planes):
-    # Set VS core and function name
-    core = vs.core
+    # Set function name
     funcName = '_limit_diff_lut'
     
     if not isinstance(diff, vs.VideoNode):
