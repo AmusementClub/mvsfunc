@@ -61,6 +61,7 @@ import math
 
 MvsFuncVersion = 9
 VSMaxPlaneNum = 3
+VSCoreVersion = core.version_number()
 
 
 ################################################################################################################################
@@ -2556,7 +2557,7 @@ def zDepth(clip, sample=None, depth=None, range=None, range_in=None, dither_type
     format = core.register_format(sFormat.color_family, sample, depth, sFormat.subsampling_w, sFormat.subsampling_h)
     
     # Process
-    zimgResize = core.version_number() >= 29
+    zimgResize = VSCoreVersion >= 29
     zimgPlugin = core.get_plugins().__contains__('the.weather.channel')
     if zimgResize:
         clip = core.resize.Bicubic(clip, format=format.id, range=range, range_in=range_in, dither_type=dither_type, prefer_props=prefer_props)
