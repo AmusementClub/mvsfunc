@@ -1320,7 +1320,7 @@ def PlaneStatistics(clip, plane=None, mean=True, mad=True, var=True, std=True, r
     
     # Delete frame property "PlaneMean" if not needed
     if not mean:
-        clip = core.std.SetFrameProp(clip, "PlaneMean", delete=True)
+        clip = core.std.SetFrameProp(clip, "PlaneMean", delete=True) if VSCoreVersion < 55 else clip.std.RemoveFrameProps('PlaneMean')
     
     # Output
     return clip
@@ -1600,7 +1600,7 @@ def FilterIf(src, flt, prop_name, props=None):
 ################################################################################################################################
 def FilterCombed(src, flt, props=None):
     clip = FilterIf(src, flt, '_Combed', props)
-    clip = clip.std.SetFrameProp('_Combed', delete=True)
+    clip = clip.std.SetFrameProp('_Combed', delete=True) if VSCoreVersion < 55 else clip.std.RemoveFrameProps('_Combed')
     return AssumeFrame(clip)
 ################################################################################################################################
 
@@ -2183,7 +2183,7 @@ def SetColorSpace(clip, ChromaLocation=None, ColorRange=None, Primaries=None, Ma
         pass
     elif isinstance(ChromaLocation, bool):
         if ChromaLocation is False:
-            clip = core.std.SetFrameProp(clip, prop='_ChromaLocation', delete=True)
+            clip = core.std.SetFrameProp(clip, prop='_ChromaLocation', delete=True) if VSCoreVersion < 55 else clip.std.RemoveFrameProps('_ChromaLocation')
     elif isinstance(ChromaLocation, int):
         if ChromaLocation >= 0 and ChromaLocation <=5:
             clip = core.std.SetFrameProp(clip, prop='_ChromaLocation', intval=ChromaLocation)
@@ -2196,7 +2196,7 @@ def SetColorSpace(clip, ChromaLocation=None, ColorRange=None, Primaries=None, Ma
         pass
     elif isinstance(ColorRange, bool):
         if ColorRange is False:
-            clip = core.std.SetFrameProp(clip, prop='_ColorRange', delete=True)
+            clip = core.std.SetFrameProp(clip, prop='_ColorRange', delete=True) if VSCoreVersion < 55 else clip.std.RemoveFrameProps('_ColorRange')
     elif isinstance(ColorRange, int):
         if ColorRange >= 0 and ColorRange <=1:
             clip = core.std.SetFrameProp(clip, prop='_ColorRange', intval=ColorRange)
@@ -2209,7 +2209,7 @@ def SetColorSpace(clip, ChromaLocation=None, ColorRange=None, Primaries=None, Ma
         pass
     elif isinstance(Primaries, bool):
         if Primaries is False:
-            clip = core.std.SetFrameProp(clip, prop='_Primaries', delete=True)
+            clip = core.std.SetFrameProp(clip, prop='_Primaries', delete=True) if VSCoreVersion < 55 else clip.std.RemoveFrameProps('_Primaries')
     elif isinstance(Primaries, int):
         clip = core.std.SetFrameProp(clip, prop='_Primaries', intval=Primaries)
     else:
@@ -2219,7 +2219,7 @@ def SetColorSpace(clip, ChromaLocation=None, ColorRange=None, Primaries=None, Ma
         pass
     elif isinstance(Matrix, bool):
         if Matrix is False:
-            clip = core.std.SetFrameProp(clip, prop='_Matrix', delete=True)
+            clip = core.std.SetFrameProp(clip, prop='_Matrix', delete=True) if VSCoreVersion < 55 else clip.std.RemoveFrameProps('_Matrix')
     elif isinstance(Matrix, int):
         clip = core.std.SetFrameProp(clip, prop='_Matrix', intval=Matrix)
     else:
@@ -2229,7 +2229,7 @@ def SetColorSpace(clip, ChromaLocation=None, ColorRange=None, Primaries=None, Ma
         pass
     elif isinstance(Transfer, bool):
         if Transfer is False:
-            clip = core.std.SetFrameProp(clip, prop='_Transfer', delete=True)
+            clip = core.std.SetFrameProp(clip, prop='_Transfer', delete=True) if VSCoreVersion < 55 else clip.std.RemoveFrameProps('_Transfer')
     elif isinstance(Transfer, int):
         clip = core.std.SetFrameProp(clip, prop='_Transfer', intval=Transfer)
     else:
@@ -2256,7 +2256,7 @@ def AssumeFrame(clip):
     
     # Modify frame properties
     clip = core.std.SetFrameProp(clip, prop='_FieldBased', intval=0)
-    clip = core.std.SetFrameProp(clip, prop='_Field', delete=True)
+    clip = core.std.SetFrameProp(clip, prop='_Field', delete=True) if VSCoreVersion < 55 else clip.std.RemoveFrameProps('_Field')
     
     # Output
     return clip
@@ -2278,7 +2278,7 @@ def AssumeTFF(clip):
     
     # Modify frame properties
     clip = core.std.SetFrameProp(clip, prop='_FieldBased', intval=2)
-    clip = core.std.SetFrameProp(clip, prop='_Field', delete=True)
+    clip = core.std.SetFrameProp(clip, prop='_Field', delete=True) if VSCoreVersion < 55 else clip.std.RemoveFrameProps('_Field')
     
     # Output
     return clip
@@ -2300,7 +2300,7 @@ def AssumeBFF(clip):
     
     # Modify frame properties
     clip = core.std.SetFrameProp(clip, prop='_FieldBased', intval=1)
-    clip = core.std.SetFrameProp(clip, prop='_Field', delete=True)
+    clip = core.std.SetFrameProp(clip, prop='_Field', delete=True) if VSCoreVersion < 55 else clip.std.RemoveFrameProps('_Field')
     
     # Output
     return clip
@@ -2328,7 +2328,7 @@ def AssumeField(clip, top):
         raise TypeError(funcName + ': \"top\" must be a bool!')
     
     # Modify frame properties
-    clip = core.std.SetFrameProp(clip, prop='_FieldBased', delete=True)
+    clip = core.std.SetFrameProp(clip, prop='_FieldBased', delete=True) if VSCoreVersion < 55 else clip.std.RemoveFrameProps('_FieldBased')
     clip = core.std.SetFrameProp(clip, prop='_Field', intval=1 if top else 0)
     
     # Output
@@ -2357,7 +2357,7 @@ def AssumeCombed(clip, combed=True):
     
     # Modify frame properties
     if combed is None:
-        clip = core.std.SetFrameProp(clip, prop='_Combed', delete=True)
+        clip = core.std.SetFrameProp(clip, prop='_Combed', delete=True) if VSCoreVersion < 55 else clip.std.RemoveFrameProps('_Combed')
     elif not isinstance(combed, int):
         raise TypeError(funcName + ': \"combed\" must be a bool!')
     else:
