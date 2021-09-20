@@ -61,20 +61,17 @@ import math
 
 MvsFuncVersion = 9
 VSMaxPlaneNum = 3
-VSCoreVersion = core.version_number()
+VSApiVer4 = 'API R4.' in core.version()
 
 
 ################################################################################################################################
 
 
-try:
+if VSApiVer4:
+    vs_YCOCG = vs_COMPAT = -1
+else:
     vs_YCOCG = vs.YCOCG
-except AttributeError:
-    vs_YCOCG = -1
-try:
     vs_COMPAT = vs.COMPAT
-except AttributeError:
-    vs_COMPAT = -1
 
 
 ################################################################################################################################
@@ -1253,7 +1250,7 @@ def PlaneStatistics(clip, plane=None, mean=True, mad=True, var=True, std=True, r
     elif plane < 0 or plane > sNumPlanes:
         raise ValueError(funcName + ': valid range of \"plane\" is [0, sNumPlanes)!'.format(sNumPlanes=sNumPlanes))
     
-    floatFormat = core.register_format(vs.GRAY, vs.FLOAT, 32, 0, 0) if VSCoreVersion < 55 else core.query_video_format(vs.GRAY, vs.FLOAT, 32, 0, 0)
+    floatFormat = core.register_format(vs.GRAY, vs.FLOAT, 32, 0, 0) if not VSApiVer4 else core.query_video_format(vs.GRAY, vs.FLOAT, 32, 0, 0)
     floatBlk = core.std.BlankClip(clip, format=floatFormat.id)
     
     clipPlane = GetPlane(clip, plane)
@@ -1320,7 +1317,7 @@ def PlaneStatistics(clip, plane=None, mean=True, mad=True, var=True, std=True, r
     
     # Delete frame property "PlaneMean" if not needed
     if not mean:
-        clip = core.std.SetFrameProp(clip, "PlaneMean", delete=True) if VSCoreVersion < 55 else clip.std.RemoveFrameProps('PlaneMean')
+        clip = core.std.SetFrameProp(clip, "PlaneMean", delete=True) if not VSApiVer4 else clip.std.RemoveFrameProps("PlaneMean")
     
     # Output
     return clip
@@ -1387,7 +1384,7 @@ def PlaneCompare(clip1, clip2, plane=None, mae=True, rmse=True, psnr=True, cov=T
     elif plane < 0 or plane > sNumPlanes:
         raise ValueError(funcName + ': valid range of \"plane\" is [0, sNumPlanes)!'.format(sNumPlanes=sNumPlanes))
     
-    floatFormat = core.register_format(vs.GRAY, vs.FLOAT, 32, 0, 0) if VSCoreVersion < 55 else core.query_video_format(vs.GRAY, vs.FLOAT, 32, 0, 0)
+    floatFormat = core.register_format(vs.GRAY, vs.FLOAT, 32, 0, 0) if not VSApiVer4 else core.query_video_format(vs.GRAY, vs.FLOAT, 32, 0, 0)
     floatBlk = core.std.BlankClip(clip1, format=floatFormat.id)
     
     clip1Plane = GetPlane(clip1, plane)
@@ -1600,7 +1597,7 @@ def FilterIf(src, flt, prop_name, props=None):
 ################################################################################################################################
 def FilterCombed(src, flt, props=None):
     clip = FilterIf(src, flt, '_Combed', props)
-    clip = clip.std.SetFrameProp('_Combed', delete=True) if VSCoreVersion < 55 else clip.std.RemoveFrameProps('_Combed')
+    clip = clip.std.SetFrameProp('_Combed', delete=True) if not VSApiVer4 else clip.std.RemoveFrameProps('_Combed')
     return AssumeFrame(clip)
 ################################################################################################################################
 
@@ -2183,7 +2180,7 @@ def SetColorSpace(clip, ChromaLocation=None, ColorRange=None, Primaries=None, Ma
         pass
     elif isinstance(ChromaLocation, bool):
         if ChromaLocation is False:
-            clip = core.std.SetFrameProp(clip, prop='_ChromaLocation', delete=True) if VSCoreVersion < 55 else clip.std.RemoveFrameProps('_ChromaLocation')
+            clip = core.std.SetFrameProp(clip, prop='_ChromaLocation', delete=True) if not VSApiVer4 else clip.std.RemoveFrameProps('_ChromaLocation')
     elif isinstance(ChromaLocation, int):
         if ChromaLocation >= 0 and ChromaLocation <=5:
             clip = core.std.SetFrameProp(clip, prop='_ChromaLocation', intval=ChromaLocation)
@@ -2196,7 +2193,7 @@ def SetColorSpace(clip, ChromaLocation=None, ColorRange=None, Primaries=None, Ma
         pass
     elif isinstance(ColorRange, bool):
         if ColorRange is False:
-            clip = core.std.SetFrameProp(clip, prop='_ColorRange', delete=True) if VSCoreVersion < 55 else clip.std.RemoveFrameProps('_ColorRange')
+            clip = core.std.SetFrameProp(clip, prop='_ColorRange', delete=True) if not VSApiVer4 else clip.std.RemoveFrameProps('_ColorRange')
     elif isinstance(ColorRange, int):
         if ColorRange >= 0 and ColorRange <=1:
             clip = core.std.SetFrameProp(clip, prop='_ColorRange', intval=ColorRange)
@@ -2209,7 +2206,7 @@ def SetColorSpace(clip, ChromaLocation=None, ColorRange=None, Primaries=None, Ma
         pass
     elif isinstance(Primaries, bool):
         if Primaries is False:
-            clip = core.std.SetFrameProp(clip, prop='_Primaries', delete=True) if VSCoreVersion < 55 else clip.std.RemoveFrameProps('_Primaries')
+            clip = core.std.SetFrameProp(clip, prop='_Primaries', delete=True) if not VSApiVer4 else clip.std.RemoveFrameProps('_Primaries')
     elif isinstance(Primaries, int):
         clip = core.std.SetFrameProp(clip, prop='_Primaries', intval=Primaries)
     else:
@@ -2219,7 +2216,7 @@ def SetColorSpace(clip, ChromaLocation=None, ColorRange=None, Primaries=None, Ma
         pass
     elif isinstance(Matrix, bool):
         if Matrix is False:
-            clip = core.std.SetFrameProp(clip, prop='_Matrix', delete=True) if VSCoreVersion < 55 else clip.std.RemoveFrameProps('_Matrix')
+            clip = core.std.SetFrameProp(clip, prop='_Matrix', delete=True) if not VSApiVer4 else clip.std.RemoveFrameProps('_Matrix')
     elif isinstance(Matrix, int):
         clip = core.std.SetFrameProp(clip, prop='_Matrix', intval=Matrix)
     else:
@@ -2229,7 +2226,7 @@ def SetColorSpace(clip, ChromaLocation=None, ColorRange=None, Primaries=None, Ma
         pass
     elif isinstance(Transfer, bool):
         if Transfer is False:
-            clip = core.std.SetFrameProp(clip, prop='_Transfer', delete=True) if VSCoreVersion < 55 else clip.std.RemoveFrameProps('_Transfer')
+            clip = core.std.SetFrameProp(clip, prop='_Transfer', delete=True) if not VSApiVer4 else clip.std.RemoveFrameProps('_Transfer')
     elif isinstance(Transfer, int):
         clip = core.std.SetFrameProp(clip, prop='_Transfer', intval=Transfer)
     else:
@@ -2256,7 +2253,7 @@ def AssumeFrame(clip):
     
     # Modify frame properties
     clip = core.std.SetFrameProp(clip, prop='_FieldBased', intval=0)
-    clip = core.std.SetFrameProp(clip, prop='_Field', delete=True) if VSCoreVersion < 55 else clip.std.RemoveFrameProps('_Field')
+    clip = core.std.SetFrameProp(clip, prop='_Field', delete=True) if not VSApiVer4 else clip.std.RemoveFrameProps('_Field')
     
     # Output
     return clip
@@ -2278,7 +2275,7 @@ def AssumeTFF(clip):
     
     # Modify frame properties
     clip = core.std.SetFrameProp(clip, prop='_FieldBased', intval=2)
-    clip = core.std.SetFrameProp(clip, prop='_Field', delete=True) if VSCoreVersion < 55 else clip.std.RemoveFrameProps('_Field')
+    clip = core.std.SetFrameProp(clip, prop='_Field', delete=True) if not VSApiVer4 else clip.std.RemoveFrameProps('_Field')
     
     # Output
     return clip
@@ -2300,7 +2297,7 @@ def AssumeBFF(clip):
     
     # Modify frame properties
     clip = core.std.SetFrameProp(clip, prop='_FieldBased', intval=1)
-    clip = core.std.SetFrameProp(clip, prop='_Field', delete=True) if VSCoreVersion < 55 else clip.std.RemoveFrameProps('_Field')
+    clip = core.std.SetFrameProp(clip, prop='_Field', delete=True) if not VSApiVer4 else clip.std.RemoveFrameProps('_Field')
     
     # Output
     return clip
@@ -2328,7 +2325,7 @@ def AssumeField(clip, top):
         raise TypeError(funcName + ': \"top\" must be a bool!')
     
     # Modify frame properties
-    clip = core.std.SetFrameProp(clip, prop='_FieldBased', delete=True) if VSCoreVersion < 55 else clip.std.RemoveFrameProps('_FieldBased')
+    clip = core.std.SetFrameProp(clip, prop='_FieldBased', delete=True) if not VSApiVer4 else clip.std.RemoveFrameProps('_FieldBased')
     clip = core.std.SetFrameProp(clip, prop='_Field', intval=1 if top else 0)
     
     # Output
@@ -2357,7 +2354,7 @@ def AssumeCombed(clip, combed=True):
     
     # Modify frame properties
     if combed is None:
-        clip = core.std.SetFrameProp(clip, prop='_Combed', delete=True) if VSCoreVersion < 55 else clip.std.RemoveFrameProps('_Combed')
+        clip = core.std.SetFrameProp(clip, prop='_Combed', delete=True) if not VSApiVer4 else clip.std.RemoveFrameProps('_Combed')
     elif not isinstance(combed, int):
         raise TypeError(funcName + ': \"combed\" must be a bool!')
     else:
@@ -2554,11 +2551,11 @@ def zDepth(clip, sample=None, depth=None, range=None, range_in=None, dither_type
     elif not isinstance(depth, int):
         raise TypeError(funcName + ': \"depth\" must be an int!')
     
-    format = core.register_format(sFormat.color_family, sample, depth, sFormat.subsampling_w, sFormat.subsampling_h) if VSCoreVersion < 55 else core.query_video_format(sFormat.color_family, sample, depth, sFormat.subsampling_w, sFormat.subsampling_h)
+    format = core.register_format(sFormat.color_family, sample, depth, sFormat.subsampling_w, sFormat.subsampling_h) if not VSApiVer4 else core.query_video_format(sFormat.color_family, sample, depth, sFormat.subsampling_w, sFormat.subsampling_h)
 
     # Process
-    zimgResize = VSCoreVersion >= 29
-    zimgPlugin = core.get_plugins().__contains__('the.weather.channel') if VSCoreVersion < 55 else hasattr(core, 'z')
+    zimgResize = core.version_number() >= 29
+    zimgPlugin = core.get_plugins().__contains__('the.weather.channel') if not VSApiVer4 else hasattr(core, 'z')
     if zimgResize:
         clip = core.resize.Bicubic(clip, format=format.id, range=range, range_in=range_in, dither_type=dither_type, prefer_props=prefer_props)
     elif zimgPlugin and core.z.get_functions().__contains__('Format'):
@@ -2751,7 +2748,7 @@ dither=None, kernel=None, a1=None, a2=None, prefer_props=None):
             sample = vs.FLOAT
         else:
             sample = vs.INTEGER
-        dFormat = core.register_format(vs.RGB, sample, depth, 0, 0).id if VSCoreVersion < 55 else core.query_video_format(vs.RGB, sample, depth, 0, 0).id
+        dFormat = core.register_format(vs.RGB, sample, depth, 0, 0).id if not VSApiVer4 else core.query_video_format(vs.RGB, sample, depth, 0, 0).id
     
     # Parameters
     if dither is None:
@@ -2930,7 +2927,7 @@ clamp=None, dbitPS=None, mode=None, funcName='_quantization_conversion'):
     elif depthd >= 8:
         mode = 0
     
-    dFormat = core.register_format(sFormat.color_family, dSType, dbitPS, sFormat.subsampling_w, sFormat.subsampling_h) if VSCoreVersion < 55 else core.query_video_format(sFormat.color_family, dSType, dbitPS, sFormat.subsampling_w, sFormat.subsampling_h)
+    dFormat = core.register_format(sFormat.color_family, dSType, dbitPS, sFormat.subsampling_w, sFormat.subsampling_h) if not VSApiVer4 else core.query_video_format(sFormat.color_family, dSType, dbitPS, sFormat.subsampling_w, sFormat.subsampling_h)
     
     # Expression function
     def gen_expr(chroma, mode):
