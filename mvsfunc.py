@@ -56,7 +56,7 @@ import vapoursynth as vs
 from vapoursynth import core
 import functools
 import math
-from collections.abc import Iterable, Sequence, MutableSequence
+from collections.abc import Iterable, Sequence
 import typing
 
 
@@ -1151,7 +1151,7 @@ def BM3D(
 ##         default: 6
 ################################################################################################################################
 def VFRSplice(
-    clips: list[vs.VideoNode],
+    clips: vs.VideoNode | Sequence[vs.VideoNode],
     tcfile: str | None = None,
     v2: bool | None = None,
     precision: int | None = None
@@ -1691,7 +1691,7 @@ def FilterCombed(src: vs.VideoNode, flt: vs.VideoNode, props: vs.VideoNode | Non
 def Min(
     clip1: vs.VideoNode,
     clip2: vs.VideoNode,
-    mode: Sequence[int] | None = None,
+    mode: list[int] | None = None,
     neutral: int | float | None = None
 ) -> vs.VideoNode:
     return _operator2(clip1, clip2, mode, neutral, 'Min')
@@ -1722,7 +1722,7 @@ def Min(
 def Max(
     clip1: vs.VideoNode,
     clip2: vs.VideoNode,
-    mode: Sequence[int] | None = None,
+    mode: list[int] | None = None,
     neutral: int | float | None = None
 ) -> vs.VideoNode:
     return _operator2(clip1, clip2, mode, neutral, 'Max')
@@ -1747,7 +1747,7 @@ def Max(
 def Avg(
     clip1: vs.VideoNode,
     clip2: vs.VideoNode,
-    mode: Sequence[int] | None = None
+    mode: list[int] | None = None
 ) -> vs.VideoNode:
     return _operator2(clip1, clip2, mode, None, 'Avg')
 ################################################################################################################################
@@ -2784,7 +2784,7 @@ def GrayScale(clip: vs.VideoNode, matrix: int | str | None = None) -> vs.VideoNo
 ## default chroma resampler: kernel="bicubic", a1=0, a2=0.5, also known as "Catmull-Rom"
 ################################################################################################################################
 def Preview(
-    clips: Sequence[vs.VideoNode],
+    clips: vs.VideoNode | Sequence[vs.VideoNode],
     plane: Sequence[int] | None = None,
     matrix: int | str | None = None,
     full: bool | None = None,
@@ -2851,8 +2851,8 @@ def Preview(
 ################################################################################################################################
 def CheckColorFamily(
     color_family: vs.ColorFamily,
-    valid_list: Sequence[str] | None = None,
-    invalid_list: Sequence[str] | None = None
+    valid_list: Iterable[str] | None = None,
+    invalid_list: Iterable[str] | None = None
 ) -> None:
     if valid_list is None:
         valid_list = ('RGB', 'YUV', 'GRAY')
@@ -3085,8 +3085,8 @@ def _quantization_conversion(
     # Expression function
     def gen_expr(chroma, mode):
         if dSType == vs.INTEGER:
-            exprLower = 0
-            exprUpper = 1 << (dFormat.bytes_per_sample * 8) - 1
+            exprLower: int | float = 0
+            exprUpper: int | float = 1 << (dFormat.bytes_per_sample * 8) - 1
         else:
             exprLower = float('-inf')
             exprUpper = float('inf')
@@ -3171,7 +3171,7 @@ def _check_arg_prop(
 def _operator2(
     clip1: vs.VideoNode,
     clip2: vs.VideoNode,
-    mode: Sequence[int] | None,
+    mode: list[int] | None,
     neutral: int | float | None,
     name: str
 ) -> vs.VideoNode:
