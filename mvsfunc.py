@@ -57,6 +57,7 @@ from vapoursynth import core
 import functools
 import math
 from collections.abc import Iterable, Sequence, MutableSequence
+import typing
 
 
 ################################################################################################################################
@@ -119,8 +120,16 @@ VSMaxPlaneNum = 3
 ##         same as those in fmtc.bitdepth, ignored when useZ=True
 ##         *NOTE* no positional arguments, only keyword arguments are accepted
 ################################################################################################################################
-def Depth(input, depth=None, sample=None, fulls=None, fulld=None,
-    dither=None, useZ=None, **kwargs):
+def Depth(
+    input: vs.VideoNode,
+    depth: int | None = None,
+    sample: vs.SampleType | None = None,
+    fulls: bool | None = None,
+    fulld: bool | None = None,
+    dither: int | str | None = None,
+    useZ: bool | None = None,
+    **kwargs: int | float | None
+) -> vs.VideoNode:
     # input clip
     clip = input
     
@@ -273,9 +282,9 @@ def Depth(input, depth=None, sample=None, fulls=None, fulld=None,
     
     # Apply conversion
     if useZ:
-        clip = zDepth(clip, sample=dSType, depth=dbitPS, range=fulld, range_in=fulls, dither_type=dither)
+        clip = zDepth(clip, sample=dSType, depth=dbitPS, range=fulld, range_in=fulls, dither_type=dither) # type: ignore
     else:
-        clip = core.fmtc.bitdepth(clip, bits=dbitPS, flt=dSType, fulls=fulls, fulld=fulld, dmode=dither, **kwargs)
+        clip = core.fmtc.bitdepth(clip, bits=dbitPS, flt=dSType, fulls=fulls, fulld=fulld, dmode=dither, **kwargs) # type: ignore
         clip = SetColorSpace(clip, ColorRange=0 if fulld else 1)
     
     # Low-depth support
@@ -322,8 +331,19 @@ def Depth(input, depth=None, sample=None, fulls=None, fulld=None,
 ##         same as those in Depth()
 ##         *NOTE* no positional arguments, only keyword arguments are accepted
 ################################################################################################################################
-def ToRGB(input, matrix=None, depth=None, sample=None, full=None,
-    kernel=None, taps=None, a1=None, a2=None, cplace=None, **kwargs):
+def ToRGB(
+    input: vs.VideoNode,
+    matrix: int | str | None = None,
+    depth: int | None = None,
+    sample: vs.SampleType | None = None,
+    full: bool | None = None,
+    kernel: str | None = None,
+    taps: int | None = None,
+    a1: float | None = None,
+    a2: float | None = None,
+    cplace: str | None = None,
+    **kwargs: int | float | None
+) -> vs.VideoNode:
     # input clip
     clip = input
     
@@ -331,7 +351,7 @@ def ToRGB(input, matrix=None, depth=None, sample=None, full=None,
         raise type_error('"input" must be a clip!')
     
     # Get string format parameter "matrix"
-    matrix = GetMatrix(input, matrix, True)
+    matrix: int = GetMatrix(input, matrix, True)
     
     # Get properties of input clip
     sFormat = input.format
@@ -496,8 +516,20 @@ def ToRGB(input, matrix=None, depth=None, sample=None, full=None,
 ##         same as those in Depth()
 ##         *NOTE* no positional arguments, only keyword arguments are accepted
 ################################################################################################################################
-def ToYUV(input, matrix=None, css=None, depth=None, sample=None, full=None,
-    kernel=None, taps=None, a1=None, a2=None, cplace=None, **kwargs):
+def ToYUV(
+    input: vs.VideoNode,
+    matrix: int | str | None = None,
+    css: str | None = None,
+    depth: int | None = None,
+    sample: int | None = None,
+    full: bool | None = None,
+    kernel: str | None = None,
+    taps: int | None = None,
+    a1: float | None = None,
+    a2: float | None = None,
+    cplace: str | None = None,
+    **kwargs: int | float
+) -> vs.VideoNode:
     # input clip
     clip = input
     
@@ -505,7 +537,7 @@ def ToYUV(input, matrix=None, css=None, depth=None, sample=None, full=None,
         raise type_error('"input" must be a clip!')
     
     # Get string format parameter "matrix"
-    matrix = GetMatrix(input, matrix, False)
+    matrix: str = GetMatrix(input, matrix, False)
     
     # Get properties of input clip
     sFormat = input.format
@@ -755,15 +787,54 @@ def ToYUV(input, matrix=None, css=None, depth=None, sample=None, full=None,
 ##         same as those in Depth()
 ##         *NOTE* no positional arguments, only keyword arguments are accepted
 ################################################################################################################################
-def BM3D(input, sigma=None, radius1=None, radius2=None, profile1=None, profile2=None,
-    refine=None, pre=None, ref=None, psample=None,
-    matrix=None, full=None,
-    output=None, css=None, depth=None, sample=None,
-    cu_kernel=None, cu_taps=None, cu_a1=None, cu_a2=None, cu_cplace=None,
-    cd_kernel=None, cd_taps=None, cd_a1=None, cd_a2=None, cd_cplace=None,
-    block_size1=None, block_step1=None, group_size1=None, bm_range1=None, bm_step1=None, ps_num1=None, ps_range1=None, ps_step1=None, th_mse1=None, hard_thr=None,
-    block_size2=None, block_step2=None, group_size2=None, bm_range2=None, bm_step2=None, ps_num2=None, ps_range2=None, ps_step2=None, th_mse2=None,
-    **kwargs):
+def BM3D(
+    input: vs.VideoNode,
+    sigma: float | list[float] | None = None,
+    radius1: int | None = None,
+    radius2: int | None = None,
+    profile1: str | None = None,
+    profile2: str | None = None,
+    refine: int | None = None,
+    pre: vs.VideoNode | None = None,
+    ref: vs.VideoNode | None = None,
+    psample: int | None = None,
+    matrix: int | str | None = None,
+    full: bool | None = None,
+    output: int | None = None,
+    css: str | None = None,
+    depth: int | None = None,
+    sample: int | None = None,
+    cu_kernel: str | None = None,
+    cu_taps: int | None = None,
+    cu_a1: float | None = None,
+    cu_a2: float | None = None,
+    cu_cplace: str | None = None,
+    cd_kernel: str | None = None,
+    cd_taps: int | None = None,
+    cd_a1: float | None = None,
+    cd_a2: float | None = None,
+    cd_cplace: str | None = None,
+    block_size1: int | None = None,
+    block_step1: int | None = None,
+    group_size1: int | None = None,
+    bm_range1: int | None = None,
+    bm_step1: int | None = None,
+    ps_num1: int | None = None,
+    ps_range1: int | None = None,
+    ps_step1: int | None = None,
+    th_mse1: float | None = None,
+    hard_thr: float | None = None,
+    block_size2: int | None = None,
+    block_step2: int | None = None,
+    group_size2: int | None = None,
+    bm_range2: int | None = None,
+    bm_step2: int | None = None,
+    ps_num2: int | None = None,
+    ps_range2: int | None = None,
+    ps_step2: int | None = None,
+    th_mse2: float | None =None,
+    **kwargs: int | float
+) -> vs.VideoNode:
     # input clip
     clip = input
     
@@ -771,7 +842,7 @@ def BM3D(input, sigma=None, radius1=None, radius2=None, profile1=None, profile2=
         raise type_error('"input" must be a clip!')
     
     # Get string format parameter "matrix"
-    matrix = GetMatrix(input, matrix, True)
+    matrix: int = GetMatrix(input, matrix, True)
     
     # Get properties of input clip
     sFormat = input.format
@@ -1077,7 +1148,12 @@ def BM3D(input, sigma=None, radius1=None, radius2=None, profile1=None, profile2=
 ##         a decimal number indicating how many digits should be displayed after the decimal point for a fixed-point value
 ##         default: 6
 ################################################################################################################################
-def VFRSplice(clips, tcfile=None, v2=None, precision=None):
+def VFRSplice(
+    clips: list[vs.VideoNode],
+    tcfile: str | None = None,
+    v2: bool | None = None,
+    precision: int | None = None
+) -> vs.VideoNode:
     # Arguments
     if isinstance(clips, vs.VideoNode):
         clips = [clips]
@@ -1191,7 +1267,15 @@ def VFRSplice(clips, tcfile=None, v2=None, precision=None):
 ##     rms {bool}: whether to calculate root mean square
 ##         default: True
 ################################################################################################################################
-def PlaneStatistics(clip, plane=None, mean=True, mad=True, var=True, std=True, rms=True):
+def PlaneStatistics(
+    clip: vs.VideoNode,
+    plane: int | None = None,
+    mean: bool | None = True,
+    mad: bool | None = True,
+    var: bool | None = True,
+    std: bool | None = True,
+    rms: bool | None = True
+) -> vs.VideoNode:
     # input clip
     if not isinstance(clip, vs.VideoNode):
         raise type_error('"clip" must be a clip!')
@@ -1318,7 +1402,16 @@ def PlaneStatistics(clip, plane=None, mean=True, mad=True, var=True, std=True, r
 ##     corr {bool}: whether to calculate correlation
 ##         default: True
 ################################################################################################################################
-def PlaneCompare(clip1, clip2, plane=None, mae=True, rmse=True, psnr=True, cov=True, corr=True):
+def PlaneCompare(
+    clip1: vs.VideoNode,
+    clip2: vs.VideoNode,
+    plane: int | None = None,
+    mae: bool | None = True,
+    rmse: bool | None = True,
+    psnr: bool | None = True,
+    cov: bool | None = True,
+    corr: bool | None = True
+) -> vs.VideoNode:
     # input clip
     if not isinstance(clip1, vs.VideoNode):
         raise type_error('"clip1" must be a clip!')
@@ -1443,7 +1536,7 @@ def PlaneCompare(clip1, clip2, plane=None, mae=True, rmse=True, psnr=True, cov=T
 ##     alignment {int}: same as the one in text.Text()
 ##         default: 7
 ################################################################################################################################
-def ShowAverage(clip, alignment=None):
+def ShowAverage(clip: vs.VideoNode, alignment: int | None = None) -> vs.VideoNode:
     # input clip
     if not isinstance(clip, vs.VideoNode):
         raise type_error('"clip" must be a clip!')
@@ -1499,7 +1592,7 @@ def ShowAverage(clip, alignment=None):
 ##         can be of any format, should have the same number of frames as "src"
 ##         default: None (use "src")
 ################################################################################################################################
-def FilterIf(src, flt, prop_name, props=None):
+def FilterIf(src: vs.VideoNode, flt: vs.VideoNode, prop_name: str, props: vs.VideoNode | None = None) -> vs.VideoNode:
     # input clip
     if not isinstance(src, vs.VideoNode):
         raise type_error('"src" must be a clip!')
@@ -1553,7 +1646,7 @@ def FilterIf(src, flt, prop_name, props=None):
 ##         can be of any format, should have the same number of frames as "src"
 ##         default: None (use "src")
 ################################################################################################################################
-def FilterCombed(src, flt, props=None):
+def FilterCombed(src: vs.VideoNode, flt: vs.VideoNode, props: vs.VideoNode | None = None) -> vs.VideoNode:
     clip = FilterIf(src, flt, '_Combed', props)
     clip = RemoveFrameProp(clip, '_Combed')
     return AssumeFrame(clip)
@@ -1593,7 +1686,12 @@ def FilterCombed(src, flt, props=None):
 ##     neutral {int|float}: specfy the neutral value used for mode=2
 ##         default: 1 << (bits_per_sample - 1) for integer input, 0 for float input
 ################################################################################################################################
-def Min(clip1, clip2, mode=None, neutral=None):
+def Min(
+    clip1: vs.VideoNode,
+    clip2: vs.VideoNode,
+    mode: Sequence[int] | None = None,
+    neutral: int | float | None = None
+) -> vs.VideoNode:
     return _operator2(clip1, clip2, mode, neutral, 'Min')
 ################################################################################################################################
 
@@ -1619,7 +1717,12 @@ def Min(clip1, clip2, mode=None, neutral=None):
 ##     neutral {int|float}: specfy the neutral value used for mode=2
 ##         default: 1 << (bits_per_sample - 1) for integer input, 0 for float input
 ################################################################################################################################
-def Max(clip1, clip2, mode=None, neutral=None):
+def Max(
+    clip1: vs.VideoNode,
+    clip2: vs.VideoNode,
+    mode: Sequence[int] | None = None,
+    neutral: int | float | None = None
+) -> vs.VideoNode:
     return _operator2(clip1, clip2, mode, neutral, 'Max')
 ################################################################################################################################
 
@@ -1639,7 +1742,11 @@ def Max(clip1, clip2, mode=None, neutral=None):
 ##         - 1: average, output = (clip1 + clip2) / 2
 ##         default: [1,1,1] for YUV/RGB input, [1] for Gray input
 ################################################################################################################################
-def Avg(clip1, clip2, mode=None):
+def Avg(
+    clip1: vs.VideoNode,
+    clip2: vs.VideoNode,
+    mode: Sequence[int] | None = None
+) -> vs.VideoNode:
     return _operator2(clip1, clip2, mode, None, 'Avg')
 ################################################################################################################################
 
@@ -1660,7 +1767,12 @@ def Avg(clip1, clip2, mode=None):
 ##         unprocessed planes will be copied from "src"
 ##         default: all planes will be processed, [0,1,2] for YUV/RGB input, [0] for Gray input
 ################################################################################################################################
-def MinFilter(src, flt1, flt2, planes=None):
+def MinFilter(
+    src: vs.VideoNode,
+    flt1: vs.VideoNode,
+    flt2: vs.VideoNode,
+    planes: Sequence[int] | None = None
+) -> vs.VideoNode:
     return _min_max_filter(src, flt1, flt2, planes, 'MinFilter')
 ################################################################################################################################
 
@@ -1681,7 +1793,12 @@ def MinFilter(src, flt1, flt2, planes=None):
 ##         unprocessed planes will be copied from "src"
 ##         default: all planes will be processed, [0,1,2] for YUV/RGB input, [0] for Gray input
 ################################################################################################################################
-def MaxFilter(src, flt1, flt2, planes=None):
+def MaxFilter(
+    src: vs.VideoNode,
+    flt1: vs.VideoNode,
+    flt2: vs.VideoNode,
+    planes: Sequence[int] | None = None
+) -> vs.VideoNode:
     return _min_max_filter(src, flt1, flt2, planes, 'MaxFilter')
 ################################################################################################################################
 
@@ -1744,7 +1861,17 @@ def MaxFilter(src, flt1, flt2, planes=None):
 ##         - False: use the std.Lut implementation if available
 ##         default: True
 ################################################################################################################################
-def LimitFilter(flt, src, ref=None, thr=None, elast=None, brighten_thr=None, thrc=None, force_expr=None, planes=None):
+def LimitFilter(
+    flt: vs.VideoNode,
+    src: vs.VideoNode,
+    ref: vs.VideoNode | None = None,
+    thr: float | None = None,
+    elast: float | None = None,
+    brighten_thr: float | None = None,
+    thrc: float | None =None,
+    force_expr: bool | None = None,
+    planes: Sequence[int] | None = None
+) -> vs.VideoNode:
     # input clip
     if not isinstance(flt, vs.VideoNode):
         raise type_error('"flt" must be a clip!')
@@ -1903,7 +2030,7 @@ def LimitFilter(flt, src, ref=None, thr=None, elast=None, brighten_thr=None, thr
 ##     hpow {float}: horizontal scaling ratio is 2^hpow
 ##         default: 0
 ################################################################################################################################
-def PointPower(clip, vpow=None, hpow=None):
+def PointPower(clip: vs.VideoNode, vpow: float | None = None, hpow: float | None = None) -> vs.VideoNode:
     # input clip
     if not isinstance(clip, vs.VideoNode):
         raise type_error('"clip" must be a clip!')
@@ -1961,7 +2088,13 @@ def PointPower(clip, vpow=None, hpow=None):
 ##     upper {float}: upper boundary for valid range (inclusive)
 ##         default: 1.02
 ################################################################################################################################
-def CheckMatrix(clip, matrices=None, full=None, lower=None, upper=None):
+def CheckMatrix(
+    clip: vs.VideoNode,
+    matrices: Sequence[str] | None = None,
+    full: bool | None = None,
+    lower: float | None = None,
+    upper: float | None = None
+) -> vs.VideoNode:
     # input clip
     if not isinstance(clip, vs.VideoNode):
         raise type_error('"clip" must be a clip!')
@@ -2030,7 +2163,7 @@ def CheckMatrix(clip, matrices=None, full=None, lower=None, upper=None):
 ## Basic parameters
 ##     expr {str}: the postfix expression to be converted
 ################################################################################################################################
-def postfix2infix(expr):
+def postfix2infix(expr: str) -> str:
     op1 = ['exp', 'log', 'sqrt', 'abs', 'not', 'dup']
     op2 = ['+', '-', '*', '/', 'max', 'min', '>', '<', '=', '>=', '<=', 'and', 'or', 'xor', 'swap', 'pow']
     op3 = ['?']
@@ -2114,7 +2247,14 @@ def postfix2infix(expr):
 ##         - False: delete corresponding frame properties if exist
 ##         - {int}: set to this value
 ################################################################################################################################
-def SetColorSpace(clip, ChromaLocation=None, ColorRange=None, Primaries=None, Matrix=None, Transfer=None):
+def SetColorSpace(
+    clip: vs.VideoNode,
+    ChromaLocation: int | None = None,
+    ColorRange: bool | int | None = None,
+    Primaries: int | None = None,
+    Matrix: int | None = None,
+    Transfer: int | None = None
+) -> vs.VideoNode:
     # input clip
     if not isinstance(clip, vs.VideoNode):
         raise type_error('"clip" must be a clip!')
@@ -2188,7 +2328,7 @@ def SetColorSpace(clip, ChromaLocation=None, ColorRange=None, Primaries=None, Ma
 ## It can be used to prevent the field order set in de-interlace filters from being overridden by the frame property '_FieldBased'.
 ## Also it may be useful to be applied before upscaling or anti-aliasing scripts using EEDI3/nnedi3, etc.(whose field order should be specified explicitly)
 ################################################################################################################################
-def AssumeFrame(clip):
+def AssumeFrame(clip: vs.VideoNode) -> vs.VideoNode:
     # input clip
     if not isinstance(clip, vs.VideoNode):
         raise type_error('"clip" must be a clip!')
@@ -2208,7 +2348,7 @@ def AssumeFrame(clip):
 ## Set all the frames in the given clip to be top-field-first(interlaced).
 ## This frame property will override the field order set in those de-interlace filters.
 ################################################################################################################################
-def AssumeTFF(clip):
+def AssumeTFF(clip: vs.VideoNode) -> vs.VideoNode:
     # input clip
     if not isinstance(clip, vs.VideoNode):
         raise type_error('"clip" must be a clip!')
@@ -2228,7 +2368,7 @@ def AssumeTFF(clip):
 ## Set all the frames in the given clip to be bottom-field-first(interlaced).
 ## This frame property will override the field order set in those de-interlace filters.
 ################################################################################################################################
-def AssumeBFF(clip):
+def AssumeBFF(clip: vs.VideoNode) -> vs.VideoNode:
     # input clip
     if not isinstance(clip, vs.VideoNode):
         raise type_error('"clip" must be a clip!')
@@ -2252,7 +2392,7 @@ def AssumeBFF(clip):
 ##         - True: top-field-based
 ##         - False: bottom-field-based
 ################################################################################################################################
-def AssumeField(clip, top):
+def AssumeField(clip: vs.VideoNode, top: bool) -> vs.VideoNode:
     # input clip
     if not isinstance(clip, vs.VideoNode):
         raise type_error('"clip" must be a clip!')
@@ -2281,7 +2421,7 @@ def AssumeField(clip, top):
 ##         - False: set property '_Combed' to 0
 ##         default: True
 ################################################################################################################################
-def AssumeCombed(clip, combed=True):
+def AssumeCombed(clip: vs.VideoNode, combed: bool = True) -> vs.VideoNode:
     # input clip
     if not isinstance(clip, vs.VideoNode):
         raise type_error('"clip" must be a clip!')
@@ -2326,7 +2466,7 @@ def AssumeCombed(clip, combed=True):
 ##     greater {bool}: if False, raise error when this mvsfunc's version is greater than the specified version
 ##         default: True
 ################################################################################################################################
-def CheckVersion(version, less=False, equal=True, greater=True):
+def CheckVersion(version: int, less: bool = False, equal: bool = True, greater: bool = True) -> bool:
     if not less and MvsFuncVersion < version:
         raise ImportWarning(f'mvsfunc version ({MvsFuncVersion}) is less than the version ({version}) specified!')
     if not equal and MvsFuncVersion == version:
@@ -2366,7 +2506,7 @@ def CheckVersion(version, less=False, equal=True, greater=True):
 ##         - True: output matrix id{int}
 ##         default: False
 ################################################################################################################################
-def GetMatrix(clip, matrix=None, dIsRGB=None, id=False):
+def GetMatrix(clip: vs.VideoNode, matrix: int | str | None = None, dIsRGB: bool | None = None, id: bool = False) -> int | str:
     # input clip
     if not isinstance(clip, vs.VideoNode):
         raise type_error('"clip" must be a clip!')
@@ -2454,7 +2594,15 @@ def GetMatrix(clip, matrix=None, dIsRGB=None, id=False):
 ## Smart function to utilize zimg depth conversion for both 1.0 and 2.0 API of vszimg as well as core.resize.
 ## core.resize is preferred now.
 ################################################################################################################################
-def zDepth(clip, sample=None, depth=None, range=None, range_in=None, dither_type=None, cpu_type=None):
+def zDepth(
+    clip: vs.VideoNode,
+    sample: int | None = None,
+    depth: int | None = None,
+    range: bool | None = None,
+    range_in: bool | None = None,
+    dither_type: str | None = None,
+    cpu_type: str | None = None
+) -> vs.VideoNode:
     # input clip
     if not isinstance(clip, vs.VideoNode):
         raise type_error('"clip" must be a clip!')
@@ -2506,7 +2654,7 @@ def zDepth(clip, sample=None, depth=None, range=None, range_in=None, dither_type
 ##     prop {str}: the frame property name to be written
 ##         default: 'PlaneAverage'
 ################################################################################################################################
-def PlaneAverage(clip, plane=None, prop=None):
+def PlaneAverage(clip: vs.VideoNode, plane: int | None = None, prop: str | None = None) -> vs.VideoNode:
     # input clip
     if not isinstance(clip, vs.VideoNode):
         raise type_error('"clip" must be a clip!')
@@ -2559,7 +2707,7 @@ def PlaneAverage(clip, plane=None, prop=None):
 ##     plane {int}: the plane to extract
 ##         default: 0
 ################################################################################################################################
-def GetPlane(clip, plane=None):
+def GetPlane(clip: vs.VideoNode, plane: int | None = None) -> vs.VideoNode:
     # input clip
     if not isinstance(clip, vs.VideoNode):
         raise type_error('"clip" must be a clip!')
@@ -2591,7 +2739,7 @@ def GetPlane(clip, plane=None):
 ##         can be of any constant format
 ##     matrix {int|str}: for RGB input only, same as the one in ToYUV()
 ################################################################################################################################
-def GrayScale(clip, matrix=None):
+def GrayScale(clip: vs.VideoNode, matrix: int | str | None = None) -> vs.VideoNode:
     # input clip
     if not isinstance(clip, vs.VideoNode):
         raise type_error('"clip" must be a clip!')
@@ -2633,8 +2781,17 @@ def GrayScale(clip, matrix=None):
 ## default dither: random
 ## default chroma resampler: kernel="bicubic", a1=0, a2=0.5, also known as "Catmull-Rom"
 ################################################################################################################################
-def Preview(clips, plane=None, matrix=None, full=None, depth=None,
-    dither=None, kernel=None, a1=None, a2=None):
+def Preview(
+    clips: Sequence[vs.VideoNode],
+    plane: Sequence[int] | None = None,
+    matrix: int | str | None = None,
+    full: bool | None = None,
+    depth: int | None = None,
+    dither: str | None = None,
+    kernel: str | None = None,
+    a1: float | None = None,
+    a2: float | None = None
+) -> vs.VideoNode:
     # input clip
     if isinstance(clips, vs.VideoNode):
         ref = clips
@@ -2690,7 +2847,7 @@ def Preview(clips, plane=None, matrix=None, full=None, depth=None,
 ################################################################################################################################
 ## Helper function: CheckColorFamily()
 ################################################################################################################################
-def CheckColorFamily(color_family, valid_list=None, invalid_list=None):
+def CheckColorFamily(color_family: vs.ColorFamily, valid_list: Sequence[str] = None, invalid_list: Sequence[str] = None) -> None:
     if valid_list is None:
         valid_list = ('RGB', 'YUV', 'GRAY')
     if invalid_list is None:
@@ -2709,7 +2866,7 @@ def CheckColorFamily(color_family, valid_list=None, invalid_list=None):
 ################################################################################################################################
 ## Helper function: RemoveFrameProp()
 ################################################################################################################################
-def RemoveFrameProp(clip, prop):
+def RemoveFrameProp(clip: vs.VideoNode, prop: str) -> vs.VideoNode:
     if vs.__api_version__.api_major >= 4:
         return core.std.RemoveFrameProps(clip, prop)
     return core.std.SetFrameProp(clip, prop, delete=True)
@@ -2719,7 +2876,13 @@ def RemoveFrameProp(clip, prop):
 ################################################################################################################################
 ## Helper function: RegisterFormat()
 ################################################################################################################################
-def RegisterFormat(color_family, sample_type, bits_per_sample, subsampling_w, subsampling_h):
+def RegisterFormat(
+    color_family: vs.ColorFamily,
+    sample_type: vs.SampleType,
+    bits_per_sample: int,
+    subsampling_w: int,
+    subsampling_h: int
+) -> vs.VideoFormat:
     if vs.__api_version__.api_major >= 4:
         return core.query_video_format(color_family, sample_type, bits_per_sample, subsampling_w, subsampling_h)
     return core.register_format(color_family, sample_type, bits_per_sample, subsampling_w, subsampling_h)
@@ -2739,26 +2902,26 @@ def RegisterFormat(color_family, sample_type, bits_per_sample, subsampling_w, su
 
 
 ################################################################################################################################
-def get_func_name(num_of_call_stacks=1):
+def get_func_name(num_of_call_stacks: int = 1) -> str:
     import inspect
     frame = inspect.currentframe()
     for stack in range(num_of_call_stacks):
         frame = frame.f_back
     return frame.f_code.co_name
 ################################################################################################################################
-def exception(obj1, *args, num_stacks=1):
+def exception(obj1: str, *args: typing.Any, num_stacks: int = 1) -> typing.NoReturn:
     name = get_func_name(num_stacks + 1)
     return Exception(f'[mvsfunc.{name}] {obj1}', *args)
 ################################################################################################################################
-def type_error(obj1, *args, num_stacks=1):
+def type_error(obj1: str, *args: typing.Any, num_stacks: int = 1) -> typing.NoReturn:
     name = get_func_name(num_stacks + 1)
     return TypeError(f'[mvsfunc.{name}] {obj1}', *args)
 ################################################################################################################################
-def value_error(obj1, *args, num_stacks=1):
+def value_error(obj1: str, *args: typing.Any, num_stacks: int = 1) -> typing.NoReturn:
     name = get_func_name(num_stacks + 1)
     return ValueError(f'[mvsfunc.{name}] {obj1}', *args)
 ################################################################################################################################
-def attribute_error(obj1, *args, num_stacks=1):
+def attribute_error(obj1: str, *args: typing.Any, num_stacks: int = 1) -> typing.NoReturn:
     name = get_func_name(num_stacks + 1)
     return AttributeError(f'[mvsfunc.{name}] {obj1}', *args)
 ################################################################################################################################
@@ -2767,7 +2930,12 @@ def attribute_error(obj1, *args, num_stacks=1):
 ################################################################################################################################
 ## Internal used function to calculate quantization parameters
 ################################################################################################################################
-def _quantization_parameters(sample=None, depth=None, full=None, chroma=None):
+def _quantization_parameters(
+    sample: vs.SampleType | None = None,
+    depth: int | None = None,
+    full: bool | None = None,
+    chroma: bool | None = None
+) -> dict[str, int | float]:
     qp = {}
     
     if sample is None:
@@ -2816,8 +2984,18 @@ def _quantization_parameters(sample=None, depth=None, full=None, chroma=None):
 ################################################################################################################################
 ## Internal used function to do quantization conversion with std.Expr
 ################################################################################################################################
-def _quantization_conversion(clip, depths=None, depthd=None, sample=None, fulls=None, fulld=None,
-    chroma=None, clamp=None, dbitPS=None, mode=None):
+def _quantization_conversion(
+    clip: vs.VideoNode,
+    depths: int | None = None,
+    depthd: int | None = None,
+    sample: vs.SampleType | None = None,
+    fulls: int | None = None,
+    fulld: int | None = None,
+    chroma: bool | None = None,
+    clamp: bool | None = None,
+    dbitPS: int | None = None,
+    mode: int | None = None
+):
     # input clip
     if not isinstance(clip, vs.VideoNode):
         raise type_error('"clip" must be a clip!', num_stacks=2)
@@ -2956,7 +3134,12 @@ def _quantization_conversion(clip, depths=None, depthd=None, sample=None, fulls=
 ################################################################################################################################
 ## Internal used function to check the argument for frame property
 ################################################################################################################################
-def _check_arg_prop(arg, default=None, defaultTrue=None, argName='arg'):
+def _check_arg_prop(
+    arg: str | None,
+    default: str | None = None,
+    defaultTrue: str | None = None,
+    argName: str = 'arg'
+) -> str:
     if defaultTrue is None:
         defaultTrue = default
     
@@ -2981,7 +3164,13 @@ def _check_arg_prop(arg, default=None, defaultTrue=None, argName='arg'):
 ################################################################################################################################
 ## Internal used function for Min(), Max() and Avg()
 ################################################################################################################################
-def _operator2(clip1, clip2, mode, neutral, name):
+def _operator2(
+    clip1: vs.VideoNode,
+    clip2: vs.VideoNode,
+    mode: Sequence[int] | None,
+    neutral: int | float | None,
+    name: str
+) -> vs.VideoNode:
     # input clip
     if not isinstance(clip1, vs.VideoNode):
         raise type_error('"clip1" must be a clip!', num_stacks=2)
@@ -3051,7 +3240,13 @@ def _operator2(clip1, clip2, mode, neutral, name):
 ################################################################################################################################
 ## Internal used function for MinFilter() and MaxFilter()
 ################################################################################################################################
-def _min_max_filter(src, flt1, flt2, planes, name):
+def _min_max_filter(
+    src: vs.VideoNode,
+    flt1: vs.VideoNode,
+    flt2: vs.VideoNode,
+    planes: Sequence[int] | None,
+    name: str
+) -> vs.VideoNode:
     # input clip
     if not isinstance(src, vs.VideoNode):
         raise type_error('"src" must be a clip!', num_stacks=2)
@@ -3108,7 +3303,7 @@ def _min_max_filter(src, flt1, flt2, planes, name):
 ################################################################################################################################
 ## Internal used functions for LimitFilter()
 ################################################################################################################################
-def _limit_filter_expr(defref, thr, elast, largen_thr, value_range):
+def _limit_filter_expr(defref: bool, thr: float, elast: float, largen_thr: float, value_range: int) -> str:
     flt = " x "
     src = " y "
     ref = " z " if defref else src
@@ -3162,7 +3357,7 @@ def _limit_filter_expr(defref, thr, elast, largen_thr, value_range):
 ################################################################################################################################
 ## Internal used functions for LimitFilter()
 ################################################################################################################################
-def _limit_diff_lut(diff, thr, elast, largen_thr, planes):
+def _limit_diff_lut(diff: vs.VideoNode, thr: float, elast: float, largen_thr: float, planes: Sequence[int]) -> vs.VideoNode:
     # input clip
     if not isinstance(diff, vs.VideoNode):
         raise type_error('"diff" must be a clip!', num_stacks=2)
