@@ -282,9 +282,11 @@ def Depth(
     
     # Apply conversion
     if useZ:
-        clip = zDepth(clip, sample=dSType, depth=dbitPS, range=fulld, range_in=fulls, dither_type=dither) # type: ignore
+        dither = typing.cast(str, dither)
+        clip = zDepth(clip, sample=dSType, depth=dbitPS, range=fulld, range_in=fulls, dither_type=dither)
     else:
-        clip = core.fmtc.bitdepth(clip, bits=dbitPS, flt=dSType, fulls=fulls, fulld=fulld, dmode=dither, **kwargs) # type: ignore
+        dither = typing.cast(int, dither)
+        clip = core.fmtc.bitdepth(clip, bits=dbitPS, flt=dSType, fulls=fulls, fulld=fulld, dmode=dither, **kwargs)
         clip = SetColorSpace(clip, ColorRange=0 if fulld else 1)
     
     # Low-depth support
@@ -351,7 +353,7 @@ def ToRGB(
         raise type_error('"input" must be a clip!')
     
     # Get string format parameter "matrix"
-    matrix: int = GetMatrix(input, matrix, True)
+    matrix = typing.cast(int, GetMatrix(input, matrix, True))
     
     # Get properties of input clip
     sFormat = input.format
@@ -521,7 +523,7 @@ def ToYUV(
     matrix: int | str | None = None,
     css: str | None = None,
     depth: int | None = None,
-    sample: int | None = None,
+    sample: vs.SampleType | None = None,
     full: bool | None = None,
     kernel: str | None = None,
     taps: int | None = None,
@@ -537,7 +539,7 @@ def ToYUV(
         raise type_error('"input" must be a clip!')
     
     # Get string format parameter "matrix"
-    matrix: str = GetMatrix(input, matrix, False)
+    matrix = typing.cast(str, GetMatrix(input, matrix, False))
     
     # Get properties of input clip
     sFormat = input.format
@@ -797,13 +799,13 @@ def BM3D(
     refine: int | None = None,
     pre: vs.VideoNode | None = None,
     ref: vs.VideoNode | None = None,
-    psample: int | None = None,
+    psample: vs.SampleType | None = None,
     matrix: int | str | None = None,
     full: bool | None = None,
     output: int | None = None,
     css: str | None = None,
     depth: int | None = None,
-    sample: int | None = None,
+    sample: vs.SampleType | None = None,
     cu_kernel: str | None = None,
     cu_taps: int | None = None,
     cu_a1: float | None = None,
@@ -842,7 +844,7 @@ def BM3D(
         raise type_error('"input" must be a clip!')
     
     # Get string format parameter "matrix"
-    matrix: int = GetMatrix(input, matrix, True)
+    matrix = typing.cast(int, GetMatrix(input, matrix, True))
     
     # Get properties of input clip
     sFormat = input.format
@@ -1189,7 +1191,7 @@ def VFRSplice(
     else:
         # Get timecode v1 list
         cur_frame = 0
-        tc_list = []
+        tc_list: list[tuple[int, int, int, int]] = []
         index = 0
         for clip in clips:
             if index > 0 and clip.fps_num == tc_list[index - 1][2] and clip.fps_den == tc_list[index - 1][3]:
@@ -1204,7 +1206,7 @@ def VFRSplice(
         if v2: # timecode v2
             olines = ['# timecode format v2\n']
             frames = tc_list[len(tc_list) - 1][1] + 1
-            time = 0 # ms
+            time = 0.0 # ms
             for tc in tc_list:
                 frame_duration = 1000 * tc[3] / tc[2] # ms
                 for frame in range(tc[0], tc[1] + 1):
@@ -1611,7 +1613,7 @@ def FilterIf(src: vs.VideoNode, flt: vs.VideoNode, prop_name: str, props: vs.Vid
     if prop_name is None or not isinstance(prop_name, str):
         raise type_error('"prop_name" must be specified and must be a str!')
     else:
-        prop_name = _check_arg_prop(prop_name, None, None, 'prop_name')
+        prop_name = _check_arg_prop(prop_name, None, None, 'prop_name') # type: ignore
     
     if props is None:
         props = src
@@ -2186,7 +2188,7 @@ def postfix2infix(expr: str) -> str:
         raise type_error('\'expr\' must be a str!')
     expr_list = expr.split()
 
-    stack = []
+    stack: list[str] = []
     for item in expr_list:
         if op1.count(item) > 0:
             try:
@@ -2678,7 +2680,7 @@ def PlaneAverage(clip: vs.VideoNode, plane: int | None = None, prop: str | None 
     
     # Process
     if core.std.get_functions().__contains__('PlaneAverage'):
-        clip = core.std.PlaneAverage(clip, plane=plane, prop=prop)
+        clip = core.std.PlaneAverage(clip, plane=plane, prop=prop) # type: ignore
     elif core.std.get_functions().__contains__('PlaneStats'):
         clip = core.std.PlaneStats(clip, plane=plane, prop='PlaneStats')
         def _PlaneAverageTransfer(n, f):
@@ -2847,7 +2849,11 @@ def Preview(
 ################################################################################################################################
 ## Helper function: CheckColorFamily()
 ################################################################################################################################
-def CheckColorFamily(color_family: vs.ColorFamily, valid_list: Sequence[str] = None, invalid_list: Sequence[str] = None) -> None:
+def CheckColorFamily(
+    color_family: vs.ColorFamily,
+    valid_list: Sequence[str] | None = None,
+    invalid_list: Sequence[str] | None = None
+) -> None:
     if valid_list is None:
         valid_list = ('RGB', 'YUV', 'GRAY')
     if invalid_list is None:
@@ -2909,19 +2915,19 @@ def get_func_name(num_of_call_stacks: int = 1) -> str:
         frame = frame.f_back
     return frame.f_code.co_name
 ################################################################################################################################
-def exception(obj1: str, *args: typing.Any, num_stacks: int = 1) -> typing.NoReturn:
+def exception(obj1: str, *args: typing.Any, num_stacks: int = 1) -> Exception:
     name = get_func_name(num_stacks + 1)
     return Exception(f'[mvsfunc.{name}] {obj1}', *args)
 ################################################################################################################################
-def type_error(obj1: str, *args: typing.Any, num_stacks: int = 1) -> typing.NoReturn:
+def type_error(obj1: str, *args: typing.Any, num_stacks: int = 1) -> Exception:
     name = get_func_name(num_stacks + 1)
     return TypeError(f'[mvsfunc.{name}] {obj1}', *args)
 ################################################################################################################################
-def value_error(obj1: str, *args: typing.Any, num_stacks: int = 1) -> typing.NoReturn:
+def value_error(obj1: str, *args: typing.Any, num_stacks: int = 1) -> Exception:
     name = get_func_name(num_stacks + 1)
     return ValueError(f'[mvsfunc.{name}] {obj1}', *args)
 ################################################################################################################################
-def attribute_error(obj1: str, *args: typing.Any, num_stacks: int = 1) -> typing.NoReturn:
+def attribute_error(obj1: str, *args: typing.Any, num_stacks: int = 1) -> Exception:
     name = get_func_name(num_stacks + 1)
     return AttributeError(f'[mvsfunc.{name}] {obj1}', *args)
 ################################################################################################################################
@@ -2936,7 +2942,7 @@ def _quantization_parameters(
     full: bool | None = None,
     chroma: bool | None = None
 ) -> dict[str, int | float]:
-    qp = {}
+    qp: dict[str, int | float] = {}
     
     if sample is None:
         sample = vs.INTEGER
@@ -2987,13 +2993,13 @@ def _quantization_parameters(
 def _quantization_conversion(
     clip: vs.VideoNode,
     depths: int | None = None,
-    depthd: int | None = None,
+    depthd: int = 0,
     sample: vs.SampleType | None = None,
     fulls: int | None = None,
     fulld: int | None = None,
     chroma: bool | None = None,
     clamp: bool | None = None,
-    dbitPS: int | None = None,
+    dbitPS: int = 0,
     mode: int | None = None
 ):
     # input clip
@@ -3030,9 +3036,7 @@ def _quantization_conversion(
         chroma = False
     
     # Get properties of output clip
-    if depthd is None:
-        pass
-    elif not isinstance(depthd, int):
+    if not isinstance(depthd, int):
         raise type_error('"depthd" must be an int!', num_stacks=2)
     if sample is None:
         if depthd is None:
@@ -3135,11 +3139,11 @@ def _quantization_conversion(
 ## Internal used function to check the argument for frame property
 ################################################################################################################################
 def _check_arg_prop(
-    arg: str | None,
+    arg: bool | str | None,
     default: str | None = None,
     defaultTrue: str | None = None,
     argName: str = 'arg'
-) -> str:
+) -> bool | str | None:
     if defaultTrue is None:
         defaultTrue = default
     
